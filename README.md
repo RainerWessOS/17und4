@@ -1,7 +1,5 @@
 # Daddelkiste-Disco-Points
 
-Simulation of a penny arcade casino game.
-
 Javascript implementation of an "advanced slot machine", a penny arcade casino game.
 
 Uses HTML, JavaScript, CSS, and Images.
