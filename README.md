@@ -13,4 +13,4 @@ New Version 0.90 now with multi-language support, the game automatically starts 
 
 Screenshot:
 
-<img src="https://github.com/RainerWessOS/Daddelkiste-Disco-Points/blob/master/Screenshot.png" />
+<img src="https://github.com/RainerWessOS/Daddelkiste-Disco-Points/blob/master/Screenshot_Game_en.png" />
