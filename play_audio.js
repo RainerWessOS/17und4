@@ -1,59 +1,75 @@
 //*********************************************************************
-//      Daddelkiste Disco Points Version 0.90 - 2016 / 2017
-//      Javascript implementation of an "Advanced Slot Machine"
+//      Daddelkiste Disco Points Version 0.90
+//      Javascript implementation of a penny arcade casino game
 //
 //      Copyright (C) 2017 Rainer Wess, Osnabrück, Germany
-//      Open Source / Freeware - released under GPL 2
+//      Open Source / Freeware - released under GPL 2.0
 //*********************************************************************
 
-var audio = new Audio();
-       audio.src = "sound/audio_sprite.mp3";
-       audio.pause();
-       audio.load();
-       
-       audio.addEventListener('ended',function(){
-         audio.pause();
-         audio.currentTime = 0.0;
-    });
-    
-function audio_pause() {
-    audio.pause();
-    audio.currentTime = 0.0;
-}
+// create new audio object and load the audio file
+var audioSprite = new Audio();
+       audioSprite.src = "sound/audio_sprite.mp3";
+       audioSprite.load();
+       audioSprite.pause();
 
-function audio_stop() {
-    audio.pause();
-    audio.currentTime = 0.0;
-}
+// define the sprites
+var spriteData = {
+    stille: {
+        start: 0.0,
+        length: 1.9
+    },
+    walzenstop: {
+        start: 2.0,
+        length: 4.9
+    },
+    abbuchen: {
+        start: 5.0,
+        length: 7.9
+    },
+    risiko1: {
+        start: 8.0,
+        length: 9.9
+    },
+    risiko2: {
+        start: 10.0,
+        length: 11.9
+    },
+     angenommen: {
+        start: 12.0,
+        length: 14.9
+    },
+     ausspielung: {
+        start: 15.0,
+        length: 29.9
+    },
+    hauptgewinn: {
+        start: 30.0,
+        length: 49.5
+    }
+};
 
-function audio_play(sprite) {
+// current sprite being played
+var currentSprite = {};
 
-  switch (sprite) {
-  
-      case "stille":
-          audio.currentTime = 0.0;
-      break;
-      case "walzenstop":
-          audio.currentTime = 2.0;
-      break;
-      case "abbuchen":
-          audio.currentTime = 5.0;
-      break;
-      case "risiko1":
-           audio.currentTime = 8.0;
-       break;
-       case "risiko2":
-            audio.currentTime = 10.0;
-       break;
-       case "angenommen":
-           audio.currentTime = 12.0;
-       break;
-       case "ausspielung":
-            audio.currentTime = 15.0;
-       break;
-       case "hauptgewinn":
-            audio.currentTime = 30.0;
-       break;
-       }
-    audio.play();
-}
+// time update handler to ensure we stop when a sprite is complete
+var onTimeUpdate = function() {
+    if (this.currentTime >= currentSprite.start + currentSprite.length) {
+        this.pause();
+    }
+};
+audioSprite.addEventListener('timeupdate', onTimeUpdate, false);
+
+// in mobile Safari, the first time this is called will load the audio. Ideally, we'd load the audio file completely before doing this.
+var audio_play = function(id) {
+    if (spriteData[id] && spriteData[id].length) {
+    	audioSprite.pause();
+        currentSprite = spriteData[id];
+        audioSprite.currentTime = currentSprite.start;
+        audioSprite.play();
+    }
+};
+
+// sometimes, we want it just quiet and don't care which sprite is playing
+var audio_stop = function() {
+    	audioSprite.pause();
+};

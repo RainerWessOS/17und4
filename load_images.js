@@ -1,9 +1,9 @@
 //*********************************************************************
-//      Daddelkiste Disco Points Version 0.90 - 2016 / 2017
-//      Javascript implementation of an "Advanced Slot Machine"
+//      Daddelkiste Disco Points Version 0.90 
+//      Javascript implementation of a penny arcade casino game
 //
 //      Copyright (C) 2017 Rainer Wess, Osnabrück, Germany
-//      Open Source / Freeware - released under GPL 2
+//      Open Source / Freeware - released under GPL 2.0
 //*********************************************************************
 
 // Bilder für die Scheiben in Arrays laden

@@ -1,9 +1,9 @@
 //*******************************************************************
-//      Daddelkiste Disco Points Version 0.90 - 2016 / 2017
-//      Javascript implementation of an "Advanced Slot Machine"
+//      Daddelkiste Disco Points Version 0.90 
+//      Javascript implementation of a penny arcade casino game
 //
 //      Copyright (C) 2017 Rainer Wess, Osnabrück, Germany
-//      Open Source / Freeware - released under GPL 2
+//      Open Source / Freeware - released under GPL 2.0
 //*******************************************************************
 //  konfigurierbar:
 
@@ -607,16 +607,13 @@ function annehmen() { // Gewinnannahme durch Automat
 	if (!gewinn_angenommen && (gewinn > 0)) {
 		gewinn_angenommen = true;
 		button_color("stop_button", btn_rot_aus);
-		if (!hoechststufe) {
-			audio_stop();
-		}
-		if (gewinn > 0) {
-			zeige_Gewinn();
-	        pu_hoch = 0;
-	        pu_neu = gewinn;
-            intHoch = setInterval(Punkte_hochzaehlen, 10);
+		if (!hoechststufe) audio_stop();
+		
+		zeige_Gewinn();
+	    pu_hoch = 0;
+	    pu_neu = gpu[gs];
+        intHoch = setInterval(Punkte_hochzaehlen, 10);
 
-		}
 	}
 }
 
@@ -625,7 +622,7 @@ function Gewinn_annehmen() { // Gewinnannahme durch Spieler
 	if (gewinn_angenommen) {
 		setInfo(infoText[16]);
 	}
-	else if (gewinn == 0) {
+	else if (gs== 0 || gs == 10) {
 		setInfo(infoText[17]);
 	}
 	annehmen();
@@ -634,7 +631,8 @@ function Gewinn_annehmen() { // Gewinnannahme durch Spieler
 
 function Teilgewinn_annehmen() {
 
-	if (!teilgewinn_angenommen && !hoechststufe) {
+    if (!teilgewinn_angenommen) {
+	
 		if (gewinn_angenommen) {
 			setInfo(infoText[16]);
 		}
@@ -642,12 +640,12 @@ function Teilgewinn_annehmen() {
 			setInfo(infoText[17]);
 		}
 		else if (gs == 1 || gs == 11) {
-			setInfo("Gewinn ist nicht weiter teilbar");
+			setInfo(infoText[18]);
 		}
-		else if (gs == 9 || gs == 20) {
-			setInfo("Die Hochststufe ist nicht teilbar");
+		else if (hoechststufe) {
+			setInfo(infoText[19]);
 		}
-		else if (!gewinn_angenommen) {
+		else if (!gewinn_angenommen ) {
 			audio_stop();
 			teilgewinn_angenommen = true;
 			pu_neu = gpu[gs] - gpu[gs-1];
@@ -655,7 +653,7 @@ function Teilgewinn_annehmen() {
 			
 			intHoch = setInterval(Punkte_hochzaehlen, 10);
         }
-	}
+    }
 }
 
 function Hoechststufe_erreicht() {
@@ -866,7 +864,7 @@ function grosse_Ausspielung_rechts() {
 	gewinn = 0;
 	blinkGar();
 	audio_play("ausspielung");
-	setInfo(infoText[18]);
+	setInfo(infoText[20]);
 
 	var gar = zufallszahl(1, 100);
 
@@ -918,7 +916,7 @@ function grosse_Ausspielung_links() {
 	gewinn_angenommen = false;
 	gewinn = 0;
 
-	setInfo(infoText[19]);
+	setInfo(infoText[21]);
 	audio_play("ausspielung");
 	blinkGal();
 
@@ -944,7 +942,7 @@ function grosse_Ausspielung_mitte() {
 	gewinn_angenommen = false;
 	gewinn = 0;
 
-	setInfo(infoText[20]);
+	setInfo(infoText[22]);
 	audio_play("ausspielung");
 
 	var gar = zufallszahl(1, 100);

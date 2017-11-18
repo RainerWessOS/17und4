@@ -2,11 +2,12 @@ changelog
 
 Version 0.90 - Disco Points
 Neue Version, andere Gerätefarbe, nur mit Punkten, die jetzt besonders schön hochzählen ;-)
-Die Audio-Wiedergabe habe ich vereinfacht, lãuft jetzt ohne jqerry und mb.audio - war ohnehin nur wegen Sicherheitseinschränkungen auf mobilen Geräten, wenn das Spiel heruntergeladen und lokal gespielt wird funktioniert es in jedem Browser einwandfrei.
+Die Audio-Wiedergabe habe ich vereinfacht, lãuft jetzt ohne jqerry und mb.audio - war ohnehin nur wegen Sicherheitseinschränkungen auf mobilen Geräten (iOS), wenn das Spiel heruntergeladen und lokal gespielt wird funktioniert es in jedem Browser einwandfrei.
 
 Version 0.89
 Einstellung, Anleitung und Uber-Seite
-neu mit Navbar und erweitert
+neu mit Navbar und erweitert.
+Unterstützung fur Deutsch, Englisch,Französisch, Spanisch, Portugiesisch, Italienisch, Niederländisch und Schwedisch eingebaut.
 
 Version 0.88 
 Layout für Chrome angepasst

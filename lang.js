@@ -1,3 +1,11 @@
+//*******************************************************************
+//      Daddelkiste Disco Points Version 0.90 
+//      Javascript implementation of a penny arcade casino game
+//
+//      Copyright (C) 2017 Rainer Wess, Osnabrück, Germany
+//      Open Source / Freeware - released under GPL 2.0
+//*******************************************************************
+
 // Lokalisierung für Dattelkiste Disco Points v0.90
 
 // Supported Languages: 
@@ -5,10 +13,10 @@
 // default: en
 
  // Zum Testen:
- var lang = "en";
+ // var lang = "en";
  // lang = lang.substring(0,2);
     
- //var lang = navigator.language.substring(0,2);
+ var lang = navigator.language.substring(0,2);
 
 var infoText = new Array();
 var btnText = new Array();
@@ -46,6 +54,8 @@ infoText = [
 " Sonderspiele angenommen",
 "Der Gewinn wurde bereits angenommen",
 "Kein Gewinn zum Annehmen vorhanden",
+"Der Gewinn ist nicht weiter teilbar",
+"Die H&ouml;chststufe ist nicht teilbar",
 "Grosse Ausspielung rechte Seite",
 "Grosse Ausspielung linke Seite",
 "* * GROSSE AUSSPIELUNG * *",
@@ -123,6 +133,8 @@ infoText = [
 " JEUX SPECIAUX - accepte",
 "La victoire a deja ete acceptee",
 "Pas de victoire a accepter",
+"Le bénéfice n'est pas divisible",
+"Le niveau maximum n'est pas divisible",
 "GRAND PLAYOUT bon site",
 "GRAND PLAYOUT quitte le site",
 "* * GRAND PLAYOUT * *",
@@ -197,6 +209,8 @@ infoText = [
 " Giochi speciali accettati",
 "Il profitto e gia stato accettato",
 "Nessun profitto da accettare",
+"Il profitto non e divisibile",
+"Il livello massimo non e divisibile",
 "Big payout right side",
 "Grande versamento a sinistra",
 "* * BIG DISPLAY * *",
@@ -270,7 +284,10 @@ infoText = [
 " Points aangenomen",
 " Speciale Spellen aangenomen",
 "De winst is al aangenomen",
-"Geen winst om te accepteren", "Grote spelling rechterkant",
+"Geen winst om te accepteren",
+"De winst is niet deelbaar",
+"Het maximale niveau is niet deelbaar",
+"Grote spelling rechterkant",
 "Grote  spelling linkerkant",
 "* * GROTE SPELLING * *",
 "Speciale spelteller blijft op 1 om te winnen"
@@ -343,7 +360,10 @@ infoText = [
 " Puntos aceptados",
 " Juegos Especiales aceptados",
 "La victoria ya ha sido aceptada",
-"No hay que ganar para aceptar", "BIG PLAYOUT sitio correcto",
+"No hay que ganar para aceptar", 
+"El beneficio no es divisible",
+"El nivel maximo no es divisible",
+"BIG PLAYOUT sitio correcto",
 "BIG PLAYOUT salio del sitio",
 "* * BIG PLAYOUT * *",
 "El contador especial del juego se mantiene en 1 hasta ganar"
@@ -404,12 +424,12 @@ infoText = [
 "Por favor, insira dinheiro",
 "O credito e transferido para o armazenamento de pontos",
 "Pressione o botao START para iniciar",
-"Inicio automatico DESLIGADO",
-"Iniciar ON",
+"Inicio automatico OFF",
+"Inicio automatico ON",
 "Autostart OFF",
 "Autostart ON",
-"Automatic Risk Off",
-"Gerenciamento Automatico de Riscos",
+"Automatico de Riscos Off",
+"Automatico de Riscos ON",
 "Nivel do nivel de risco definido",
 "Nivel do nivel do lado esquerdo definido",
 "Lucro:",
@@ -418,6 +438,8 @@ infoText = [
 " Jogos especiais aceitos",
 "O lucro ja foi aceito",
 "Sem lucro para aceitar",
+"O lucro nao e divisivel",
+"O nivel maximo nao e divisivel",
 "Grande lado direito do pagamento",
 "Grande lado do pagamento do lado esquerdo",
 "* * BIG DISPLAY * *",
@@ -493,6 +515,8 @@ infoText = [
 " Special Spel accepterat",
 "Vinnaren har redan accepterats",
 "Ingen vinna dar for att acceptera",
+"Vinsten ar inte delbar",
+"Maximal niva ar inte delbar",
 "BIG PLAYOUT right site",
 "BIG PLAYOUT left site",
 "* * BIG PLAYOUT * *",
@@ -535,7 +559,7 @@ settingsText = [
 "Handla om:"
 ];
 
-c_anl = "Denna simulering av en spelautomat fungerar precis som den i penny arkaden. Nar startautomatiken ar paslagen startas spelen automatiskt. Autostart startar om den farsta skivan nar det inte finns nagon sol pa den. -automatisk riskerar vinsten upp till den faststallda risknivan. Den har installningen ar aktiv, genom att klicka pa faltet till vanster eller hoger riskstege. Den installda hojden anges med den lilla ljusgrona faltet i respektive riskfalt. "; 
+c_anl = "Denna simulering av en spelautomat fungerar precis som den i penny arkaden. Nar startautomatiken ar paslagen startas spelen automatiskt. Autostart startar om den farsta skivan nar det inte finns nagon sol pa den. Risk-automatisk riskerar vinsten upp till den faststallda risknivan. Den har installningen ar aktiv, genom att klicka pa faltet till vanster eller hoger riskstege. Den installda hojden anges med den lilla ljusgrona faltet i respektive riskfalt. "; 
 
 c_github = "Du kan ladda ner den senaste versionen fran Github.com:";
 
@@ -568,10 +592,12 @@ infoText = [
 " SPECIAL GAMES - accepted",
 "The win has already been accepted",
 "No win there to accept",
+"The win is not divisible",
+"The maximum level is not divisible",
 "BIG PLAYOUT right site",
 "BIG PLAYOUT left site",
 "* * BIG PLAYOUT * *",
-"Special Game Counter stays at 1 till win"
+"Special game counter stays at 1 till win"
 ];
 
 btnText = [
