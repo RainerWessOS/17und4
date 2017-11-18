@@ -13,6 +13,8 @@ Works on all modern browsers. Game can be played on touch-devices like smartfone
 New Version 0.90 now with multi-language support (de,en,fr,es,pt,it,nl,sv), the game automatically starts in the language of your browser.
 
 
-Screenshot:
+Screenshots:
 
 <img src="https://github.com/RainerWessOS/Daddelkiste-Disco-Points/blob/master/Screenshot_Game_en.png" />
+
+<img src="https://github.com/RainerWessOS/Daddelkiste-Disco-Points/blob/master/Screenshot_Settings_en.png" />
