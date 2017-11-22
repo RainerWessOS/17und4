@@ -1,0 +1,46 @@
+changelog
+
+Version 0.91 - Disco Points
+Neue, einfachere Gewinnermittlung,
+neue Funktion, die für alle Ausspielungen die Gewinnstufe ermittelt
+
+Version 0.90 - Disco Points
+Neue Version, andere Gerätefarbe, nur mit Punkten, die jetzt besonders schön hochzählen ;-)
+Die Audio-Wiedergabe habe ich vereinfacht, lãuft jetzt ohne jqerry und mb.audio - war ohnehin nur wegen Sicherheitseinschränkungen auf mobilen Geräten (iOS), wenn das Spiel heruntergeladen und lokal gespielt wird funktioniert es in jedem Browser einwandfrei.
+
+Version 0.89
+Einstellung, Anleitung und Uber-Seite
+neu mit Navbar und erweitert.
+Unterstützung fur Deutsch, Englisch,Französisch, Spanisch, Portugiesisch, Italienisch, Niederländisch und Schwedisch eingebaut.
+
+Version 0.88 
+Layout für Chrome angepasst
+kleinere Änderungen Einstellungsseite
+Buttonfarben bei eingeschalteten Automatiken eingebaut
+
+Version 0.87
+Einstellungsseite, Risiko, Geschwindigkeit 
+und Automatiken einstellbar
+Zeitverzogerung bei Aufruf von the_end entfernt, 
+verhindert Mehrfachstarts
+Scheiben stopbar gemacht
+
+Version 0.86  
+Imagearray fur Scheiben geändert, 
+jetzt zweidimensional, 
+Scheibenstopfunktionen optimiert
+
+Version 0.84 
+neue function get verkürzt getElementById
+lichtorgel gefixed, Ausspielung blinky, blinky
+
+Version 0.83  
+neue Gewinnermittlung integriert
+fehlerkorrektur in Gewinnermittlung, s2 statt s1
+
+Version 0.82.
+autostart und startautomatik getauscht
+Layout gerichtet
+
+ToDo
+Multiplikator fur höhere Einsätze einbauen

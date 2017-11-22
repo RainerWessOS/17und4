@@ -1,12 +1,71 @@
 //*******************************************************************
-//      Daddelkiste Disco Points Version 0.90 
+//      Daddelkiste Disco Points Version 0.91 
 //      Javascript implementation of a penny arcade casino game
 //
 //      Copyright (C) 2017 Rainer Wess, Osnabrück, Germany
 //      Open Source / Freeware - released under GPL 2.0
 //*******************************************************************
-//  konfigurierbar:
 
+var geld = 0;
+var einsatz = 20;
+var punkte = 0;
+var gewinn = 0;
+
+// Variablen für Scheibenpositionen, Zufallszahl von 1 bis 12 (0 löscht Scheibe)
+var s1 = 0; // left disc
+var s2 = 0; // disc in the middle
+var s3 = 0; // right disc
+var s_stop = 1; // Zählvariable fürs stoppen der Scheiben per Stop-Taste
+
+// Definition der Scheibenbelegung
+// 999 = Sonne
+var disc = new Array();
+disc[0] = [0, 999, 30, 120, 30, 999, 30, 60, 30, 999, 30, 120, 30]; // links oben
+disc[1] = [0, 999, 20, 80, 20, 160, 20, 40, 20, 40, 80, 20, 40]; // links unten
+disc[2] = [0, 999, 20, 30, 60, 30, 160, 20, 40, 30, 80, 20, 120]; // mitte
+disc[3] = [0, 999, 30, 120, 30, 999, 30, 60, 30, 999, 30, 120, 30]; // rechts oben
+disc[4] = [0, 999, 20, 80, 20, 160, 20, 40, 20, 40, 80, 20, 40]; // rechts unten
+
+// Aus gs die Punkte ermitteln
+var gpu = [0, 30, 60, 120, 240, 500, 1000, 2000, 4000, 9000, 0, 20, 40, 80, 160, 300, 600, 1200, 2500, 5000, 10000];
+
+// Ausspielreihenfolge GA rechts(4-9)/links(15-20)/mitte(21-28)
+var arf = [0, 0, 0, 0, 4, 8, 6, 9, 5, 7, 0, 0, 0, 0, 0, 15, 19, 17, 20, 16, 18, 21, 26, 23, 28, 24, 27, 22, 25];
+
+var gs = 0; // Gewinnstufe, Kern der Risikofunktion, 0-9 fur rechts, 10-20 links
+var rsr = 5; // Risikostufe rechts, default Wert, bis zum Erreichen von 500 Punkten
+var rsl = 15; // Risikostufe links, default Wert, bis zum Erreichen von 300 Punkten
+
+// *****************
+// Boolsche Variablen
+var startautomatik = false; // Startet automatisch das nächste Spiel
+var autostart = false; // startet die erste Scheibe nochmal, wenn keine Sonne
+var risikoautomatik = false;
+
+var win = false; // Zufallsvariable, bestimmt ob risiko erfolgreich
+var riskiert = false; // true wenn Risikotaste während Risikophase gedrückt wurde
+// und in dem Bereich in dem die Risikoautomatik aktiv ist
+var risikophase = false;
+var spiel_laueft_noch = false; // ist praktisch während des ganzen Spiels true, geht nur unmittelbar
+// vor start des nächsten Spiels kurz auf false, verhindert Mehrfachstarts
+var teilgewinn_angenommen = false; // entprellt und verzoegert das Herunterteilen
+var gewinn_angenommen = false; // verhintert das mehrfache Annehmen eines Gewinnes
+var hoechststufe = false; // Bei Höchstgewinn bleibt Gerät trotz Automatikstart stehen bis START gedrückt wird
+//  steuert Animation und Sound bei Gewinn von 90 und 100 Sonderspielen
+var ausspielung = false; // dient zum stoppen von allen Ausspielungen
+var ga = false; // true bei grossen Ausspielungen, wird benotigt wegen Ausspielreihenfolge arf
+
+var counter = 0; // wird fur die Risikoautomatik und automatische Gewinnannahme verwendet
+var ns = 0; // Null Selektor in Risikophase (rechte oder linke Null)
+var pu_neu = 0;
+var pu_hoch = 0; // wird fürs hochzählen der Punkte benötigt
+var intHoch; // Interval wird fürs hochzählen der Punkte benötigt
+var lo = true; // fur Lichtanimation bei Hoechststufe
+var intH; // Interval fur Lichtanimation bei Hoechststufe
+var gam = 0; // Gewinn-Feldnummer bei der großen Ausspielung mitte (21-28)
+
+// ************************
+// Variablen die über Einstelldialog einstellbar sind:
 var risiko_win = 50; // Prozent für Gewinn bei Risiko, default 50 (Risiko 1:1)
 // dieser Wert kann nach eigenem Geschmack verändert werden
 // bei Erhöhung des Wertes läßt sich leichter Hochdrücken
@@ -14,53 +73,8 @@ var spiel_tempo = 100; // Geschwindigkeit des Spielablaufs (50,75,100,125,150)
 var auto_risiko = 4; // nach wieviel Sekunden Risikoautomatik
 // auto_risiko muss kleiner sein als auto_annahme!!!
 var auto_annahme = 6; // nach wieviel Sekunden automatische Gewinnannahme
-
-// *********************************************************************
-//  don't touch this :
-
-var s1 = 0; // Variablen für Scheibenpositionen, mögliche Werte 1 bis 12
-var s2 = 0; // die Scheibenbelegung ist in der lade_bilder.js dokumentiert
-var s3 = 0;
-var s_stop = 1; // Zählvariable fürs stoppen der Scheiben per Stop-Taste
-var ga = 0; // Variable für das Ergebnis der großen Ausspielung mitte
-var gs = 0; // Gewinnstufe, Kern der Risikofunktion, 0-9 fur rechts, 10-20 links
-var rsr = 5; // Risikostufe rechts, default Wert, bis zum Erreichen von 500 Punkten
-var rsl = 15; // Risikostufe links, default Wert, bis zum Erreichen von 300 Punkten
-// Arrays zur Gewinnermittlung, enthält gewinnende Scheibenpositionen als Strings
-// Reihenfolge vom grossten Gewinn (index 0) bis zum Kleinsten (index 11), der letzte Eintrag enthält die gestreifen Felder und ist nur in Sonderspielen relevant
-// index 0 : gam, 1, 2: gal, 3 gar, 4 160 gs=14, 5 120 gs=3, 6  80 gs=13, 7 60 gs=2, 8 40 gs=12, 9 30 kar, 10 20 kal, 11 kal, 12 gf
-var ge1 = ["01", "01", "05.09", "05.09", "05", "03.11", "03.10", "07", "07.09.12", "02.04.06.08.10.12", "02.04.06.08.11", "01.02.03.04.05.06.07.08.09.10.11.12"];
-var ge2 = ["01", "01", "01", "01", "06", "01.12", "01.10", "01.04", "01.08", "01.03.05.09", "01.02.07.11", "01"];
-var ge3 = ["01", "05.09", "01", "05.09", "05", "03.11", "03.10", "07", "07.09.12", "02.04.06.08.10.12", "02.04.06.08.11", "01.02.03.04.05.06.07.08.09.10.11.12"];
-var gegs = [6, 15, 15, 4, 14, 3, 13, 2, 12, 1, 11, 11, 21]; // Umsetzung Gewinnindex nach Gewinnstufe
-// Gewinnarray Punkte, rechts 0-9, links 10-20
-var gpu = [0, 30, 60, 120, 240, 500, 1000, 2000, 4000, 9000, 0, 20, 40, 80, 160, 300, 600, 1200, 2500, 5000, 10000];
-// Ausspielreihenfolge GA rechts(4-9)/links(15-20)/mitte(21-28)
-var arf = [0, 0, 0, 0, 4, 8, 6, 9, 5, 7, 0, 0, 0, 0, 0, 15, 19, 17, 20, 16, 18, 21, 26, 23, 28, 24, 27, 22, 25];
-// fur Umsetzung von ga (verwendet in GA mitte) auf Gewinnstufe gs
-var gags = [6, 17, 7, 18, 8, 19, 9, 20]; // entspricht 1000,1200,2000,2500,4000,5000,9000,10000 Punkte
-var gas = false; // true bei GA Seiten (rechts/links)
-var gam = false; // true bei GA Mitte (oben)
-var ausspielung = false; // dient zum stoppen von allen Ausspielungen
-var win = false; // Zufallsvariable, bestimmt ob risiko erfolgreich
-var riskiert = false; // true wenn Risikotaste während Risikophase gedrückt wurde
-// und in dem Bereich in dem die Risikoautomatik aktiv ist
-var counter = 0; // wird fur die Risikoautomatik und automatische Gewinnannahme verwendet
-var teilgewinn_angenommen = false; // entprellt und verzoegert das Herunterteilen
-var gewinn_angenommen = false; // verhintert das mehrfache Annehmen eines Gewinnes
-var hoechststufe = false; // Bei Höchstgewinn bleibt Gerät trotz Automatikstart stehen bis START gedrückt wird
-//  steuert Animation und Sound bei Gewinn von 90 und 100 Sonderspielen
-var lo = true; // fur Lichtanimation bei Hoechststufe
-var intH; // fur Lichtanimation bei Hoechststufe
-var pu_neu = 0;
-var pu_hoch = 0; // wird fürs hochzählen der Punkte benötigt
-var intHoch; // wird fürs hochzählen der Punkte benötigt
-var stop = false; // verhintert start eines neuen Spiels während altes noch läuft
-// in Ausspielungen, wenn gs noch null ist
-// kann sehr wahrscheinlich mit "spiel_laueft_noch" besser realisiert werden
-var startautomatik = false; // Startet automatisch das nächste Spiel
-var autostart = false; // startet die erste Scheibe nochmal, wenn keine Sonne
-var risikoautomatik = false;
+// *****************
+// Farbdefinitionen für die Tasten
 var btn_rot_aus = "#990000"; // Farbe der roten Button passiv
 var btn_rot_auto = "#BB0000"; // Farbe der roten Button bei Automatik
 var btn_rot_an = "#FF0000"; // Farbe der roten Button aktiv
@@ -69,14 +83,7 @@ var btn_gelb_auto = "#CCA300"; // Farbe der gelben Button bei Automatik
 var btn_gelb_an = "#FFCC00"; // Farbe der gelben Risiko-Buttons aktiv
 var btn_gruen_aus = "#006600";
 var btn_gruen_an = "#009900";
-var risikophase = false;
-var spiel_laueft_noch = false; // ist praktisch während des ganzen Spiels true, geht nur unmittelbar
-// vor start des nächsten Spiels kurz auf false, verhindert Mehrfachstarts
-var guthaben = 0;
-var einsatz = 20;
-var punkte = 0;
-var gewinn = 0;
-var ns = 0; // Null Selektor in Risikophase
+
 // nützliche kleine Helfer Funktionen
 
 function id(id) {
@@ -95,8 +102,8 @@ function show(id) {
 	id(id).style.visibility = null;
 }
 
-function button_text(bid, txt) {
-	id(bid).value = txt;
+function button_text(bid, btxt) {
+	id(bid).value = btxt;
 }
 
 function button_color(bid, bcolor) {
@@ -107,10 +114,11 @@ function setInfo(txt) {
 	id("Info").innerHTML = txt;
 }
 
-function setPF(pid, txt) {
-	id(pid).innerHTML = txt;
+function setPF(pid, ptxt) {
+	id(pid).innerHTML = ptxt;
 }
 
+// Multi-Language
 function setPFtxt() {
 	setPF("Art", playfield[0]);
 	setPF("Typ", playfield[1]);
@@ -124,8 +132,8 @@ function setPFtxt() {
 	setPF("pl2", playfield[8]);
 }
 
+// Multi-Language
 function setConfTxt() {
-
 	setPF("c1a", settingsText[0]);
 	setPF("c1b", settingsText[0]);
 	setPF("c1c", settingsText[0]);
@@ -137,7 +145,7 @@ function setConfTxt() {
 	setPF("t_auto", settingsText[4]);
 	setPF("c2a", settingsText[6]);
 	setPF("c2b", settingsText[6]);
-	setPF("c2c", settingsText[6])
+	setPF("c2c", settingsText[6]);
 	setPF("c2d", settingsText[6]);
 	setPF("c2", settingsText[6]);
 	setPF("c3a", settingsText[7]);
@@ -152,10 +160,12 @@ function setConfTxt() {
 	setPF("c4", settingsText[8]);
 	setPF("c_anl", c_anl);
 	setPF("c_hint", c_hint);
-	setPF("c_github", c_github);
 	setPF("c_think", c_think);
+	setPF("c_github", c_github);
+
 }
 
+// Multi-Language
 function setBtnTxt() {
 	button_text("start_button", btnText[0]);
 	button_text("mitte_button", btnText[1]);
@@ -226,8 +236,8 @@ function zum_starten_auffordern() {
 	setInfo(infoText[3]);
 }
 
-function zeige_Guthaben() {
-	id("Guthaben").value = String(guthaben) + ".00";
+function zeige_Geld() {
+	id("Geld").value = String(geld) + ".00";
 }
 
 function zeige_Punkte() {
@@ -244,31 +254,22 @@ function zeige_Einsatz() {
 
 function zeige_feld(nr, status) {
 
-	// status = (status == "aus" || 0) ?  0 :  1;
-
-	if (risikoautomatik && (nr == rsr || nr == rsl)) {  // Bild mit grunem Balken 
+	if (risikoautomatik && (nr == rsr || nr == rsl)) { // Bild mit grunem Balken 
 		if (status == 1) bgImg(nr, 3);
 		else bgImg(nr, 2);
 	}
-	else {
+	else { // ohne grünen Balken
 		if (status == 1) bgImg(nr, 1);
 		else bgImg(nr, 0);
 	}
 }
 
 function zeige_felder(von, bis, status) {
-	// z.B (0,9,0) schaltet die Felder von 0-9 aus
-	// kann auch mit (0,9,aus) aufgerufen werden
-
-	//   (status == "aus" || 0) ? status = 0 :  status = 1;
+	// z.B (0,9,0) schaltet die Felder (von 0, bis 9, aus 0)
 
 	for (i = von; i <= bis; i++) {
 		zeige_feld(i, status);
 	}
-}
-
-function setColor(s_id, s_color) {
-	id(s_id).style.color = s_color;
 }
 
 function lichtorgel() {
@@ -295,12 +296,13 @@ function reset() {
 	// sonst mit falschen Werten gefüllt bleiben
 
 	setInfo(infoText[1]);
-	zeige_Guthaben();
+	geld = 0;
+	zeige_Geld();
 	punkte = 0;
 	zeige_Punkte();
 	gewinn = 0;
 	zeige_Gewinn();
-	
+
 	loadSettings();
 	// For localisation de, en usw.
 	setBtnTxt();
@@ -324,16 +326,15 @@ function win_or_loose() {
 
 function Geld_zu_Punkte() {
 
-	punkte = punkte + guthaben * 100;
-	guthaben = 0;
+	punkte = punkte + geld * 100;
+	geld = 0;
 	zeige_Punkte();
-	zeige_Guthaben();
+	zeige_Geld();
 
 	if (!spiel_laueft_noch) {
 		setTimeout("zum_starten_auffordern();", 3 * spiel_tempo);
+		setTimeout("button_color('start_button', btn_rot_an);", 3 * spiel_tempo);
 	}
-	setTimeout("button_color('start_button', btn_rot_an);", 8 * spiel_tempo);
-
 }
 
 function umbuchen_animieren2() {
@@ -351,8 +352,8 @@ function umbuchen_animieren1() {
 
 function Geldeinwurf() {
 
-	guthaben = guthaben + 10;
-	zeige_Guthaben();
+	geld = geld + 10;
+	zeige_Geld();
 	button_color("geldeinwurf", btn_gruen_aus);
 	setTimeout("umbuchen_animieren1()", 8 * spiel_tempo);
 }
@@ -363,7 +364,7 @@ function zeige_Scheibe(i, position) {
 	id("scheibe" + i).src = Scheibe[i][position].src;
 	if (i != 2) id("scheibe" + (i + 1)).src = Scheibe[i + 1][position].src;
 	if (position != 0) audio_play("walzenstop");
-	// position = 0 entspricht Scheibe löschen, leeres Bild
+	// position = 0 entspricht  Scheibe löschen, leeres Bild
 }
 
 function stop_Scheibe_1() {
@@ -414,6 +415,17 @@ function Scheiben_loeschen() {
 	setTimeout("stop_Scheibe_1()", 15 * spiel_tempo);
 }
 
+function Hoechststufe_erreicht() {
+
+	hoechststufe = true;
+	button_color("mitte_button", btn_rot_aus);
+	audio_play("hauptgewinn");
+
+	intH = setInterval(lichtorgel, 800);
+	setTimeout("Gewinn_annehmen();", 8 * spiel_tempo);
+
+}
+
 function Hoechststufe_zurueck() {
 
 	hoechststufe = false;
@@ -427,25 +439,10 @@ function starte_Spiel() {
 
 	risikophase = false;
 	gewinn_angenommen = false;
-	stop = false;
 	s_stop = 1;
 	gs = 0;
-	ga = 0;
 	gewinn = 0;
 	spiel_tempo = id("spiel_tempo").value;
-	
-
-	if (hoechststufe) Hoechststufe_zurueck();
-
-	zeige_felder(0, 20, 0);
- 
-	if (startautomatik) button_color("start_button", btn_rot_auto);
-	else button_color("start_button", btn_rot_aus);
-
-	if (risikoautomatik) {
-		zeige_feld(rsr, 0);
-		zeige_feld(rsl, 0);
-	}
 
 	if (punkte >= einsatz) {
 
@@ -454,12 +451,93 @@ function starte_Spiel() {
 		zeige_Punkte();
 		audio_play("abbuchen");
 		setInfo(" ");
+
+		zeige_felder(0, 20, 0);
+
+		if (hoechststufe) Hoechststufe_zurueck();
+
+		if (startautomatik) button_color("start_button", btn_rot_auto);
+		else button_color("start_button", btn_rot_aus);
+
+		if (risikoautomatik) {
+			zeige_feld(rsr, 0);
+			zeige_feld(rsl, 0);
+		}
+
 		setTimeout("Scheiben_loeschen()", spiel_tempo);
 	}
 	else {
 		setInfo(infoText[1]);
 		button_color("geldeinwurf", btn_gruen_an);
 	}
+}
+
+function starttaste_gedrueckt() {
+
+	if (spiel_laueft_noch) {
+		if (startautomatik) {
+			startautomatik = false;
+			button_color("start_button", btn_rot_aus);
+			setInfo(infoText[4]);
+		}
+		else {
+			startautomatik = true;
+			button_color("start_button", btn_rot_auto);
+			setInfo(infoText[5]);
+		}
+	}
+	else if (!spiel_laueft_noch) starte_Spiel();
+}
+
+function mittleretaste_gedrueckt() {
+
+	if (!risikophase) {
+		if (autostart) {
+			autostart = false;
+			button_color("mitte_button", btn_rot_aus);
+			setInfo(infoText[6]);
+		}
+		else {
+			autostart = true;
+			button_color("mitte_button", btn_rot_auto);
+			setInfo(infoText[7]);
+		}
+	}
+	else Teilgewinn_annehmen();
+}
+
+function stoptaste_gedrueckt() {
+
+	if (ausspielung) ausspiel_stop();
+	else if (risikophase) Gewinn_annehmen();
+	else {
+		stop_Scheibe_2();
+		stop_Scheibe_3();
+		stop_Scheibe_1();
+	}
+}
+
+function risikotaste_gedrueckt() {
+
+	if (!risikophase) {
+		if (risikoautomatik) {
+			risikoautomatik = false;
+			zeige_feld(rsr, 0);
+			zeige_feld(rsl, 0);
+			button_color("risiko_button1", btn_gelb_aus);
+			button_color("risiko_button2", btn_gelb_aus);
+			setInfo(infoText[8]);
+		}
+		else {
+			risikoautomatik = true;
+			setze_risikostufe(5);
+			setze_risikostufe(15);
+			button_color("risiko_button1", btn_gelb_auto);
+			button_color("risiko_button2", btn_gelb_auto);
+			setInfo(infoText[9]);
+		}
+	}
+	else riskiert = true;
 }
 
 function risiko_auto() {
@@ -490,57 +568,15 @@ function setze_risikostufe(rs) {
 	}
 }
 
-function risikotaste_gedrueckt() {
-
-	if (!risikophase) {
-		if (risikoautomatik) {
-			risikoautomatik = false;
-			zeige_feld(rsr, 0);
-			zeige_feld(rsl, 0);
-			button_color("risiko_button1", btn_gelb_aus);
-			button_color("risiko_button2", btn_gelb_aus);
-			setInfo(infoText[8]);
-		}
-		else {
-			risikoautomatik = true;
-			setze_risikostufe(5);
-			setze_risikostufe(15);
-			button_color("risiko_button1", btn_gelb_auto);
-			button_color("risiko_button2", btn_gelb_auto);
-			setInfo(infoText[9]);
-		}
-	}
-	else riskiert = true;
-}
-
-
-function starttaste_gedrueckt() {
-
-	if (spiel_laueft_noch) {
-		if (startautomatik) {
-			startautomatik = false;
-			button_color("start_button", btn_rot_aus);
-			setInfo(infoText[4]);
-		}
-		else {
-			startautomatik = true;
-			button_color("start_button", btn_rot_auto);
-			setInfo(infoText[5]);
-		}
-	}
-	else if (!spiel_laueft_noch) starte_Spiel();
-}
-
 function the_end() {
 
 	risikophase = false;
-	stop = false;
 
 	audio_stop();
-	
+
 	if (autostart) button_color("mitte_button", btn_rot_auto);
 	else button_color("mitte_button", btn_rot_aus);
-    button_text("mitte_button", btnText[1]);
+	button_text("mitte_button", btnText[1]);
 
 	button_color("stop_button", btn_rot_aus);
 	button_text("stop_button", btnText[2]);
@@ -570,69 +606,57 @@ function the_end() {
 }
 
 function Punkte_hochzaehlen() {
-	
+
 	if (pu_neu > pu_hoch) {
 		pu_hoch = pu_hoch + 10;
 		punkte = punkte + 10;
 		zeige_Punkte();
 	}
-	
+
 	else {
 		clearInterval(intHoch);
-		
+
 		gewinn = gewinn - pu_neu;
 		zeige_Gewinn();
 		audio_play("angenommen");
-		    // Volle Gewinnannahme
+		// Volle Gewinnannahme
 		if (gewinn == 0 && !ausspielung) {
-             setInfo(infoText[12] + pu_neu + infoText[14]);   
-             pu_neu = 0;
-             setTimeout("the_end();", 20 * spiel_tempo);
-         }  // Teilgewinnannahme
-		 else if (gewinn > 0) {
-		   zeige_feld(gs + 1, 0);
-		   zeige_feld(gs, 0);
-		   gs = gs - 1;
-		   zeige_feld(gs, 1);
-		   setInfo(infoText[13] + pu_neu + infoText[14]);
-		   pu_neu = 0;
-		   setTimeout("starte_risiko();", 20 * spiel_tempo);
-	    }
-		
-    }
+			setInfo(infoText[12] + pu_neu + infoText[14]);
+			pu_neu = 0;
+			setTimeout("the_end();", 20 * spiel_tempo);
+		} // Teilgewinnannahme
+		else if (gewinn > 0) {
+			zeige_feld(gs + 1, 0);
+			zeige_feld(gs, 0);
+			gs = gs - 1;
+			zeige_feld(gs, 1);
+			setInfo(infoText[13] + pu_neu + infoText[14]);
+			pu_neu = 0;
+			setTimeout("starte_risiko();", 20 * spiel_tempo);
+		}
+
+	}
 }
 
-function annehmen() { // Gewinnannahme durch Automat
+function Gewinn_annehmen() {
 
-	if (!gewinn_angenommen && (gewinn > 0)) {
+	if (!gewinn_angenommen && !(gs == 0 || gs == 10)) {
 		gewinn_angenommen = true;
 		button_color("stop_button", btn_rot_aus);
 		if (!hoechststufe) audio_stop();
-		
+
 		zeige_Gewinn();
-	    pu_hoch = 0;
-	    pu_neu = gpu[gs];
-        intHoch = setInterval(Punkte_hochzaehlen, 10);
+		pu_hoch = 0;
+		pu_neu = gpu[gs];
+		intHoch = setInterval(Punkte_hochzaehlen, 10);
 
 	}
-}
-
-function Gewinn_annehmen() { // Gewinnannahme durch Spieler
-
-	if (gewinn_angenommen) {
-		setInfo(infoText[16]);
-	}
-	else if (gs== 0 || gs == 10) {
-		setInfo(infoText[17]);
-	}
-	annehmen();
-	
 }
 
 function Teilgewinn_annehmen() {
 
-    if (!teilgewinn_angenommen) {
-	
+	if (!teilgewinn_angenommen) {
+
 		if (gewinn_angenommen) {
 			setInfo(infoText[16]);
 		}
@@ -645,53 +669,14 @@ function Teilgewinn_annehmen() {
 		else if (hoechststufe) {
 			setInfo(infoText[19]);
 		}
-		else if (!gewinn_angenommen ) {
+		else if (!gewinn_angenommen) {
 			audio_stop();
 			teilgewinn_angenommen = true;
-			pu_neu = gpu[gs] - gpu[gs-1];
-	        pu_hoch = 0;
-			
+			pu_neu = gpu[gs] - gpu[gs - 1];
+			pu_hoch = 0;
+
 			intHoch = setInterval(Punkte_hochzaehlen, 10);
-        }
-    }
-}
-
-function Hoechststufe_erreicht() {
-
-	hoechststufe = true;
-	button_color("mitte_button", btn_rot_aus);
-	audio_play("hauptgewinn");
-
-	intH = setInterval(lichtorgel, 800);
-	setTimeout("annehmen();", 8 * spiel_tempo);
-
-}
-
-function mittleretaste_gedrueckt() {
-
-	if (!risikophase) {
-		if (autostart) {
-			autostart = false;
-			button_color("mitte_button", btn_rot_aus);
-			setInfo(infoText[6]);
 		}
-		else {
-			autostart = true;
-			button_color("mitte_button", btn_rot_auto);
-			setInfo(infoText[7]);
-		}
-	}
-	else Teilgewinn_annehmen();
-}
-
-function stoptaste_gedrueckt() {
-
-	if (ausspielung) ausspielung = false;
-	else if (risikophase || hoechststufe) Gewinn_annehmen();
-	else {
-		stop_Scheibe_2();
-		stop_Scheibe_3();
-		stop_Scheibe_1();
 	}
 }
 
@@ -707,7 +692,7 @@ function starte_risiko() {
 	auto_annahme = id("auto_annahme").value;
 
 	gewinn = gpu[gs];
-    zeige_Gewinn();
+	zeige_Gewinn();
 
 	if (gs == 0 || gs == 10) {
 		setTimeout("the_end();", 20 * spiel_tempo);
@@ -760,7 +745,7 @@ function animiere_risiko() {
 		}
 		// automatische Gewinnannahme
 		counter = counter + 1;
-		if (counter > (2 * auto_annahme)) annehmen();
+		if (counter > (2 * auto_annahme)) Gewinn_annehmen();
 		// Risikoautomatik
 		if (counter > (2 * auto_risiko) && risikoautomatik && (gs < rsr || (10 < gs && gs < rsl))) {
 			risiko_auto();
@@ -776,9 +761,9 @@ function animiere_risiko() {
 				gs = 0;
 				zeige_feld(rfeld, 0);
 				zeige_feld(ns, 1);
-				setInfo(" ");
 				button_color("stop_button", btn_rot_aus);
 			}
+			setInfo(" ");
 			starte_risiko();
 		}
 		else setTimeout("animiere_risiko();", 500);
@@ -787,14 +772,15 @@ function animiere_risiko() {
 		zeige_feld(ns, 0);
 		zeige_feld(rfeld, 0);
 		zeige_feld(gs, 1);
-		if (teilgewinn_angenommen) teilgewinn_angenommen = false;
+		if (teilgewinn_angenommen)
+			teilgewinn_angenommen = false;
+
 	}
 }
 
 function animiere_ausspielung(von_, bis_, feld_) {
-	// Ausspielung , auf welcher Seite, von Feld,
-	//  bis Feld,  startet bei Feld z.b. ("links", 5, 9, 5)
-	// oder ("ga", 1, 8, 1)
+	// Ausspielung , von Feld,
+	//  bis Feld,  startet bei Feld z.b. (5, 9, 5)
 
 	button_text("stop_button", btnText[2]);
 	button_color("stop_button", btn_rot_an);
@@ -804,12 +790,12 @@ function animiere_ausspielung(von_, bis_, feld_) {
 
 	if (feld_ == bis + 1) feld_ = von;
 
-	if (gas || gam) {
+	if (ga) { // grosse A. andere Reihenfolge
 		feld = arf[feld_];
 		if (feld_ == von) feld_davor = arf[bis];
 		else feld_davor = arf[feld_ - 1];
 	}
-	else {
+	else { // kleine Ausspielung
 		feld = feld_;
 		if (feld == von) feld_davor = bis;
 		else feld_davor = feld - 1;
@@ -819,11 +805,9 @@ function animiere_ausspielung(von_, bis_, feld_) {
 	zeige_feld(feld, 1);
 	zeige_feld(feld_davor, 0);
 
-	if ((gs == feld || ga == feld) && !ausspielung) {
+	if ((gs == feld || gam == feld) && !ausspielung) {
 
-		if (gam) gs = gags[feld - 21];
-		gam = gas = false;
-		ga = 0;
+		ga = false;
 		gewinn = gpu[gs];
 		zeige_Gewinn();
 		resetA();
@@ -837,72 +821,50 @@ function animiere_ausspielung(von_, bis_, feld_) {
 	}
 }
 
-function kleine_Ausspielung_rechts() {
-
-	ausspielung = true;
+function ausspiel_gs(gewinnstufe, prozentsatz) {
+	
+	// Dieser Funktion werden als Argumente alle Gewinnstufen und 
+	// die dazugehörigen Prozentangaben übergeben. Die Funktion
+	// zieht dann eine Zufallszahl und ermittelt welche Gewinnstufe
+	// die Ausspielung gewonnen hat, diese wird dann als    
+    // Rückgabewert zurùckgegeben
+   
+	var gw = [];
+    var pw = [];
+	var a = 0;
+    var b = 0;
+	var z = zufallszahl(1, 100);
+	
 	gewinn_angenommen = false;
-	gewinn = 0;
-	audio_play("ausspielung");
-
-	var kar = zufallszahl(1, 100);
-
-	if (kar <= 50) gs = 1;
-	else if (kar > 50 && kar <= 70) gs = 2;
-	else if (kar > 70 && kar <= 85) gs = 3;
-	else if (kar > 85 && kar <= 95) gs = 4;
-	else gs = 5;
-
-	setTimeout("ausspiel_stop();", 20 * spiel_tempo);
-	animiere_ausspielung(1, 5, 1);
-}
-
-function grosse_Ausspielung_rechts() {
-
 	ausspielung = true;
-	gas = true;
-	gewinn_angenommen = false;
-	gewinn = 0;
-	blinkGar();
 	audio_play("ausspielung");
-	setInfo(infoText[20]);
+	
+	 for (i = 0; i < arguments.length; i++) {
+     	(i % 2 == 0) ? gw.push(arguments[i]) : pw.push(arguments[i]);
+     }
+	
+	for (var i = 0; i < pw.length; i++) {
+		b = a + pw[i];
+		if ( (a < z) && (z <= b) ) break;
+		a = b;
+	}
+	
+	return gw[i]; // gs
 
-	var gar = zufallszahl(1, 100);
-
-	if (gar <= 50) gs = 4;
-	else if (gar > 50 && gar <= 65) gs = 5;
-	else if (gar > 65 && gar <= 75) gs = 6;
-	else if (gar > 75 && gar <= 85) gs = 7;
-	else if (gar > 85 && gar <= 95) gs = 8;
-	else gs = 9;
-
-	setTimeout("ausspiel_stop();", 40 * spiel_tempo);
-	animiere_ausspielung(4, 9, 4);
 }
 
 function kleine_Ausspielung_links() {
 
-	//   kleine Ausspielung animieren,
-	//   Lauflicht  von 20 Punkte bis 6 Sonderspiele
-
-	ausspielung = true;
-	gewinn_angenommen = false;
-	gewinn = 0;
-
-	audio_play("ausspielung");
-
-	var kal = zufallszahl(1, 100);
-
-	// ermittle Gewinnstufe links
-
-	if (kal <= 50) gs = 11; //  20P  50%
-	else if (kal > 50 && kal <= 65) gs = 12; //  40P  15%
-	else if (kal > 65 && kal <= 75) gs = 13; //  80P  10%
-	else if (kal > 75 && kal <= 85) gs = 14; // 160P 10%
-	else if (kal > 85 && kal <= 95) gs = 15; // 300P 10%
-	else gs = 16; // 600P  5%
-
-	setTimeout("ausspiel_stop();", 20 * spiel_tempo);
+	gs = ausspiel_gs(11,50, 12,15, 13,10, 14,10, 15,10, 16,5);
 	animiere_ausspielung(11, 16, 11);
+	setTimeout("ausspiel_stop();", 20 * spiel_tempo);
+}
+
+function kleine_Ausspielung_rechts() {
+
+	gs = ausspiel_gs(1,50, 2,20, 3,15, 4,10, 5,5);
+	animiere_ausspielung(1, 5, 1);
+	setTimeout("ausspiel_stop();", 20 * spiel_tempo);
 }
 
 function grosse_Ausspielung_links() {
@@ -911,125 +873,153 @@ function grosse_Ausspielung_links() {
 	//    von 3 bis 100 Sonderspiele
 	//    extra spannend
 
-	ausspielung = true;
-	gas = true;
-	gewinn_angenommen = false;
-	gewinn = 0;
-
+	ga = true;
 	setInfo(infoText[21]);
-	audio_play("ausspielung");
 	blinkGal();
 
-	var gal = zufallszahl(1, 100);
-
-	// ermittle Gewinnstufe links
-
-	if (gal <= 50) gs = 15; //  3 SS 50%
-	else if (gal > 50 && gal <= 65) gs = 16; //  6 SS 15%
-	else if (gal > 65 && gal <= 75) gs = 17; // 12 SS 10%
-	else if (gal > 75 && gal <= 85) gs = 18; // 25 SS 10%
-	else if (gal > 85 && gal <= 95) gs = 19; // 50 SS 10%
-	else gs = 20; //100 SS 5%
-
-	setTimeout("ausspiel_stop();", 40 * spiel_tempo);
+	gs = ausspiel_gs(15,50, 16,15, 17,10, 18,10, 19,10, 20,5);
 	animiere_ausspielung(15, 20, 15);
+	setTimeout("ausspiel_stop();", 40 * spiel_tempo);
+}
+
+function grosse_Ausspielung_rechts() {
+
+	ga = true;
+	blinkGar();
+	setInfo(infoText[20]);
+
+	gs = ausspiel_gs(4,50, 5,15, 6,10, 7,10, 8,10, 9,5);
+	animiere_ausspielung(4, 9, 4);
+	setTimeout("ausspiel_stop();", 40 * spiel_tempo);
 }
 
 function grosse_Ausspielung_mitte() {
 
-	ausspielung = true;
-	gam = true;
-	gewinn_angenommen = false;
-	gewinn = 0;
+	// Zuordnung von Gewinnstufe auf Ausspielfelder(21-28)
+	// damit das richtige Gewinnfeld beleuchtet wird, nicht
+	// nur das in der Risikoleiter
+	var gam_gs = [0, 0, 0, 0, 0, 0, 21, 23, 25, 27, 0, 0, 0, 0, 0, 0, 0, 22, 24, 26, 28];
 
+	ga = true;
 	setInfo(infoText[22]);
-	audio_play("ausspielung");
 
-	var gar = zufallszahl(1, 100);
-
-	if (gar <= 25) ga = 21; // 10   25%    
-	else if (gar > 25 && gar <= 50) ga = 22; // 12   25%   
-	else if (gar > 50 && gar <= 65) ga = 23; // 20   15%     
-	else if (gar > 65 && gar <= 80) ga = 24; // 25   15%     
-	else if (gar > 80 && gar <= 85) ga = 25; // 40     5%
-	else if (gar > 85 && gar <= 90) ga = 26; // 50.    5%
-	else if (gar > 90 && gar <= 95) ga = 27; // 90      5%
-	else ga = 28; // 100     5%
-
-	setTimeout("ausspiel_stop();", 50 * spiel_tempo);
+	gs = ausspiel_gs(6,25, 17,25, 7,15, 18,15, 8,5, 19,5, 9,5, 20,5);
+	gam = gam_gs[gs];
 	animiere_ausspielung(21, 28, 21);
+	setTimeout("ausspiel_stop();", 50 * spiel_tempo);
 }
 
-function NumToStr(num) {
+function einfacher_Gewinn(eg) {
 
-	var str = (num < 10) ? "0" + num : String(num);
-	return str;
-}
-
-function ist_Gewinn() {
-
-	var ergebnis = 0;
-
-	// Funktion benötigt die Arrays ge1, ge2, ge3 zur Gewinnermittlung
-
-	var s1s = NumToStr(s1);
-	var s2s = NumToStr(s2);
-	var s3s = NumToStr(s3);
-
-	for (var i = 0; i < ge2.length; i++) {
-		if (ge2[i].indexOf(s2s) != -1) {
-			if (ge1[i].indexOf(s1s) != -1) {
-				if (ge3[i].indexOf(s3s) != -1) {
-					ergebnis = gegs[i];
-
-					break;
-				}
-			}
-		}
+	switch (eg) {
+		case 160:
+			gs = 14;
+			break;
+		case 120:
+			gs = 3;
+			break;
+		case 80:
+			gs = 13;
+			break;
+		case 60:
+			gs = 2;
+			break;
+		case 40:
+			gs = 12;
+			break;
+		case 30:
+			gs = 1;
+			break;
+		case 20:
+			gs = 11;
+			break;
 	}
-	return ergebnis;
+	gewinn = gpu[gs];
+	zeige_Gewinn();
+	zeige_feld(gs, 1);
+	setTimeout("starte_risiko();", 20 * spiel_tempo);
 }
 
 function Gewinnermittlung() {
 
-	gs = ist_Gewinn();
+	var i;
+	var j;
+	var k = 0;
+	var sonne = 0;
+	var tmp = 0;
+	var ge = new Array();
+
+	gs = 0;
+	gewinn = 0;
+
 	audio_stop();
 
-	switch (gs) {
-		case 0:
-			setTimeout("the_end();", 20 * spiel_tempo);
-			break;
-		case 1:
-				zeige_feld(gs, 1);
-				setTimeout("kleine_Ausspielung_rechts();", 15 * spiel_tempo);
-			
-			break;
-		case 11:
-				zeige_feld(gs, 1);
-                setTimeout("kleine_Ausspielung_links();", 15 * spiel_tempo);
-			break;
-		case 4:
-			ausspielung = true;
-			setTimeout("grosse_Ausspielung_rechts();", 30 * spiel_tempo);
-			break;
-		case 15:
-			ausspielung = true;
-			setTimeout("grosse_Ausspielung_links();", 30 * spiel_tempo);
-			break;
-		case 6:
-			ausspielung = true;
-			setTimeout("grosse_Ausspielung_mitte();", 30 * spiel_tempo);
-			break;
-		default:
-				gewinn = gpu[gs];
-				zeige_Gewinn();
-				zeige_feld(gs, 1);
-				setTimeout("starte_risiko();", 20 * spiel_tempo);
-			break;
+	for (i = 0; i <= 1; i++) {
+		for (j = 3; j <= 4; j++) {
+			if (disc[i][s1] == disc[j][s3]) {
+				ge[k] = disc[i][s1];
+				if (ge[k] == 999) sonne++;
+				k++;
+			}
+		}
+	}
+
+	if (ge.length > 1 && ge[1] > ge[0]) {
+		tmp = ge[0];
+		ge[0] = ge[1];
+		ge[1] = tmp;
+	}
+
+	if (disc[2][s2] == 999) {
+
+		switch (sonne) {
+			case 4: //gam
+				gs = 6;
+				ausspielung = true;
+				setTimeout("grosse_Ausspielung_mitte();", 30 * spiel_tempo);
+				break;
+			case 2: // gal
+				gs = 15;
+				ausspielung = true;
+				setTimeout("grosse_Ausspielung_links();", 30 * spiel_tempo);
+				break;
+			case 1: // gar
+				gs = 4;
+				ausspielung = true;
+				setTimeout("grosse_Ausspielung_rechts();", 30 * spiel_tempo);
+				break;
+			case 0:
+				if (ge.length > 0 && ge[0] > 30) {
+					gs = 11;
+					einfacher_Gewinn(ge[0]);
+				}
+				else if (ge[0] == 30) {
+					gs = 1;
+					zeige_feld(gs, 1);
+					setTimeout("kleine_Ausspielung_rechts();", 15 * spiel_tempo);
+				}
+				else {
+					gs = 11;
+					zeige_feld(gs, 1);
+					setTimeout("kleine_Ausspielung_links();", 15 * spiel_tempo);
+				}
+				break;
+		}
+
+	}
+
+	if (ge.length > 0 && disc[2][s2] != 999) {
+		for (i = 0; i < ge.length; i++) {
+			if (ge[i] == disc[2][s2]) {
+				gs = 11;
+				einfacher_Gewinn(ge[i]);
+			}
+		}
+	}
+	if (gs == 0) {
+		setTimeout("the_end();", 20 * spiel_tempo);
 	}
 
 }
-
-
 
 // ENDE

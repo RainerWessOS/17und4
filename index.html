@@ -8,7 +8,7 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	
+
 	<script src="js/load_images.js" type="text/javascript" charset="utf-8"></script>
 	<script src="js/play_audio.js" type="text/javascript" charset="utf-8"></script>
 	<script src="js/lang.js" type="text/javascript" charset="utf-8"></script>
@@ -29,7 +29,8 @@
 				<li><a href="#c1" id="c3a" onclick="show_think();">Something to think</a></li>
 				<li class="right"><a href="#c1" id="c4a" onclick="show_about();">About</a></li>
 			</ul>
-			<p>&nbsp;<p>
+			<p>&nbsp;
+				<p>
 					<h2 class="config_header" id="c1">Settings:</h2>
 					<p>&nbsp;
 						<p>
@@ -100,9 +101,10 @@
                                     <option>10</option>
                                 </datalist>
 													</form>
-															<p>&nbsp; <p>
+													<p>&nbsp;
+														<p>
 															<input type="button" class="config_button" id="exit1" onclick="close_config();" value="Close"></input>
-										<p>
+															<p>
 		</div>
 
 		<div id="instruction" class="overlayHidden">
@@ -113,32 +115,36 @@
 				<li><a href="#c2" id="c3b" onclick="show_think();">Something to think</a></li>
 				<li class="right"><a href="#c2" id="c4b" onclick="show_about();">About</a></li>
 			</ul>
-			<p>&nbsp;<p>
-					<h2 class="config_header" id="c2">Instructions</h2>
-				
+			<p>&nbsp;
 				<p>
-				<span id="c_anl"></span>
-				 <p>&nbsp; <p>
+					<h2 class="config_header" id="c2">Instructions</h2>
 
-							<input type="button" class="config_button"  id="exit2" onclick="close_instruction();" value="Close"></input>
+					<p>
+						<span id="c_anl"></span>
+						<p>&nbsp;
 							<p>
+
+								<input type="button" class="config_button" id="exit2" onclick="close_instruction();" value="Close"></input>
+								<p>
 		</div>
-<div id="think" class="overlayHidden">
+		<div id="think" class="overlayHidden">
 
 			<ul class="topnav">
 				<li><a href="#c3" id="c1c" onclick="show_config();">Settings</a></li>
-			    <li><a href="#c3" id="c2c" onclick="show_instruction();">Instructions</a></li>
+				<li><a href="#c3" id="c2c" onclick="show_instruction();">Instructions</a></li>
 				<li><a href="#c3" id="c3c" class="active">Something to think</a></li>
 				<li class="right"><a href="#c3" id="c4c" onclick="show_about();">About</a></li>
 			</ul>
-			<p>&nbsp;<p>
-					<h2 class="config_header" id="c3">Something to think</h2>
+			<p>&nbsp;
 				<p>
-				<span id="c_think"></span>
-				 <p>&nbsp; <p>
-
-							<input type="button" class="config_button"  id="exit3" onclick="close_think();" value="Close"></input>
+					<h2 class="config_header" id="c3">Something to think</h2>
+					<p>
+						<span id="c_think"></span>
+						<p>&nbsp;
 							<p>
+
+								<input type="button" class="config_button" id="exit3" onclick="close_think();" value="Close"></input>
+								<p>
 		</div>
 
 		<div id="about" class="overlayHidden">
@@ -148,13 +154,15 @@
 				<li><a href="#c4" id="c3d" onclick="show_think();">Something to think</a></li>
 				<li class="right"><a href="#c4" id="c4d" class="active">About</a></li>
 			</ul>
-			<p>&nbsp; <p>
+			<p>&nbsp;
+				<p>
 					<h2 class="config_header" id="c4">Hinweise zum Spiel:</h2>
-					<p>&nbsp; <p>
+					<p>&nbsp;
+						<p>
 							<span>
-                <h4>Daddelkiste "Disco points"  -  Version: 0.90</h4>
+                <h4>Daddelkiste "Disco points"  -  Version: 0.91</h4>
                     <p>
-                    <h4>2017 - Copyright  Rainer Weß, Osnabr&uuml;ck, Germany</h4>
+                    <h4>&copy; 2017 - Rainer Weß, Osnabr&uuml;ck, Germany</h4>
                     <p>
                     <h4>Open Source / Freeware released under GPL 2.0 License</h4>
                     <p>&nbsp;<p>
@@ -162,9 +170,10 @@
  <a href="https://github.com/RainerWessOS/Daddelkiste-Disco-Points" target="_new" class="git">https://github.com/RainerWessOS/Daddelkiste-Disco-Points</a>
      <p>&nbsp;<p>
  	</span>
-     <span id="c_hint"></span>
-	 <p>&nbsp; <p>
-									<input type="button"  class="config_button"  id="exit4" onclick="close_about();" value="Close"></input>
+							<span id="c_hint"></span>
+							<p>&nbsp;
+								<p>
+									<input type="button" class="config_button" id="exit4" onclick="close_about();" value="Close"></input>
 									<p>
 		</div>
 
@@ -317,7 +326,7 @@
 					</tr>
 					<tr>
 						<td class="tdh80">
-							
+
 						</td>
 					</tr>
 					<tr>
@@ -546,7 +555,7 @@
 							</tr>
 							<tr>
 								<td>
-									<input type="text" class="feld" id="Guthaben" size="5" maxlength="5" value=" " readonly="readonly">
+									<input type="text" class="feld" id="Geld" size="5" maxlength="5" value=" " readonly="readonly">
 								</td>
 								<td>
 									<input type="text" class="feld" id="Punkte" size="5" maxlength="5" value=" " readonly="readonly">
@@ -616,6 +625,7 @@
 	</div>
 
 	<script type="text/javascript">
+	
 		gal = id("gal");
 		gar = id("gar");
 		options = id('options');
@@ -650,7 +660,8 @@
 		function close_instruction() {
 			instruction.className = 'overlayHidden';
 		}
-function show_think() {
+
+		function show_think() {
 			think.className = 'overlay';
 			options.className = 'overlayHidden';
 			instruction.className = 'overlayHidden';
@@ -659,20 +670,17 @@ function show_think() {
 
 		function close_think() {
 			think.className = 'overlayHidden';
-
 		}
-		
+
 		function show_about() {
 			about.className = 'overlay';
 			options.className = 'overlayHidden';
 			instruction.className = 'overlayHidden';
-            think.className = 'overlayHidden';
-			
+			think.className = 'overlayHidden';
 		}
 
 		function close_about() {
 			about.className = 'overlayHidden';
-
 		}
 
 		if (navigator.userAgent.indexOf("Firefox") > -1) {
@@ -683,6 +691,7 @@ function show_think() {
 			id("think").style.width = "600px";
 			id("about").style.width = "600px";
 		}
+		
 	</script>
 
 </body>
