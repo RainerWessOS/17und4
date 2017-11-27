@@ -1,19 +1,19 @@
 //*******************************************************************
-//      Daddelkiste Disco Points Version 0.91 
+//      Daddelkiste Disco Fun Version 0.92 
 //      Javascript implementation of a penny arcade casino game
 //
 //      Copyright (C) 2017 Rainer Wess, Osnabrück, Germany
 //      Open Source / Freeware - released under GPL 2.0
 //*******************************************************************
 
-// Lokalisierung für Dattelkiste Disco Points v0.90
+// Lokalisierung für Dattelkiste Disco Fun v0.90
 
 // Supported Languages: 
 // de, en, fr, it, nl, es , pt , sv
 // default: en
 
  // Zum Testen:
- // var lang = "en";
+ // var lang = "de-CH";
  // lang = lang.substring(0,2);
     
  var lang = navigator.language.substring(0,2);
@@ -76,12 +76,12 @@ btnText = [
 
 playfield = [
 "Daddelkiste",
-"Disco Points",
+"Disco fun",
 "GELD",
 "PUNKTE",
 "GEWINN",
 "EINSATZ",
-"SONDERSPIELE",
+"SPIELE",
 "MULTI-SPIELE",
 "AUSSPIELUNG"
 ];
@@ -98,7 +98,7 @@ settingsText = [
 "&Uuml;ber"
 ];
 
-c_anl = "Simulation eines Geldspielautomaten mit drei Scheiben, die in der Reihenfolge links, rechts, mitte stoppen. Die linke Scheibe kann einmal nachgestartet, die beiden anderen k&ouml;nnen gestoppt werden.<p>Die Startatomatik wird ein- bzw. ausgeschaltet, indem w&auml;hrend des bereits laufenden Spiels die Start-Taste bet&auml;tigt wird. Mit Startautomatik startet das n&auml;chste Spiel automatisch.<p>Mit der mittleren Taste kann die AutoStart Automatik ein- und aus geschaltet werden, die die linke Scheibe einmal neu startet, wenn keine Sonne erschienen ist.<p>Zeigen die Scheiben 3x den gleichen Betrag oder 2x den gleichen Betrag und die Sonne auf der mittleren Scheibe, wird dieser gewonnen. Gibt es zwei Gewinnkombinationen - nur bei Sonne in der Mitte m&ouml;glich- , wird der h&ouml;here Gewinn gegeben.<p>Wenn auf den drei Scheiben jeweils eine Sonne erscheint, gibt es eine Ausspielung auf der rechten Seite. Erscheinen vier Sonnen, gibt es eine Ausspielung auf der linken Seite.Bei f&uuml;nf Sonnen wird die grosse Ausspielung in der Mitte gegeben.<p>Alle Gewinne k&ouml;nnen risikiert werden. Gewinne oberhalb des Mindestgewinns der jeweiligen Risikoleiter k&ouml;nnen geteilt werden, auch mehrmals nacheinander, so oft gew&uuml;nscht. Nach dem Teilen wird dann eine Stufe tiefer zum Risiko angeboten und die Differenz wird auf dem Punktez&auml;hler aufgez&auml;hlt.<p>Es kann eine Risiko-Automatik eingeschaltet werden, die jeden Gewinn risikiert. Die H&ouml;he bis zu der automatisch riskiert werden soll ist frei einstellbar, indem bei eingeschalteter Risikoautomatik auf die entsprechenden Felder auf der rechten und linken Risikoleiter getippt bzw. geklickt wird. Die eingestellte H&ouml;he ist an dem kleinen hellgr&uuml;nen Balken im jeweiligen Risikofeld ersichtlich.";
+c_anl = "Simulation eines Geldspielautomaten mit drei Scheiben, die in der Reihenfolge links, rechts, mitte stoppen. Die linke Scheibe kann einmal nachgestartet, die beiden anderen k&ouml;nnen gestoppt werden.<p>Die Startatomatik wird ein- bzw. ausgeschaltet, indem w&auml;hrend des bereits laufenden Spiels die Start-Taste bet&auml;tigt wird. Mit Startautomatik startet das n&auml;chste Spiel automatisch.<p>Mit der mittleren Taste kann die AutoStart Automatik ein- und aus geschaltet werden, die die linke Scheibe einmal neu startet, wenn keine Sonne erschienen ist.<p>Zeigen die Scheiben 3x den gleichen Betrag oder 2x den gleichen Betrag und die Sonne auf der mittleren Scheibe, wird dieser gewonnen. Gibt es zwei Gewinnkombinationen - nur bei Sonne in der Mitte m&ouml;glich- , wird der h&ouml;here Gewinn gegeben.<p>Wenn auf den drei Scheiben jeweils eine Sonne erscheint, gibt es eine Serienausspielung auf der rechten Seite - von 5 bis 90 Sonderspiele. Erscheinen vier Sonnen, gibt es eine Serienausspielung auf der linken Seite - von 3 bis 100 Sonderspiele.Bei f&uuml;nf Sonnen wird die grosse Ausspielung in der Mitte gegeben - 10 bis 100 Sonderspiele.<p>Alle Gewinne k&ouml;nnen risikiert werden. Gewinne oberhalb des Mindestgewinns der jeweiligen Risikoleiter k&ouml;nnen geteilt werden, auch mehrmals nacheinander, so oft gew&uuml;nscht. Nach dem Teilen wird dann eine Stufe tiefer zum Risiko angeboten und die Differenz wird auf dem jeweilen Punkte- oder Sonderspiele-Z&auml;hler aufgez&auml;hlt.<p>Es kann eine Risiko-Automatik eingeschaltet werden, die jeden Gewinn risikiert. Die H&ouml;he bis zu der automatisch riskiert werden soll ist frei einstellbar, indem bei eingeschalteter Risikoautomatik auf die entsprechenden Felder auf der rechten und linken Risikoleiter getippt bzw. geklickt wird. Die eingestellte H&ouml;he ist an dem kleinen hellgr&uuml;nen Balken im jeweiligen Risikofeld ersichtlich.<p>Im Sonderspiel werden bei Gewinnkombination und bei  gestreiften Feldern auf der mittleren Scheibe 200 Punkte gewonnen. In Sonderspielen kann nur bei Sonne auf der mittleren Scheibe, oder bei bei einem Sonderspielz&auml;hlerstand kleiner als 10 riskiert werden, wobei 40 Punkte gleich angenommen und der Rest zum Risiko angeboten wird.  Es k,&ouml;nnen unbegrenzt viele Sonderspiele gewonnen werden. Wird bei Ablauf von Sonderspielen kein Gewinn erzielt, bleibt der Sonderspielz&auml;hler auf 1, bis  gewonnen wird.<p>Allle Ereignisse werden auch klanglich untermalt. Bei erreichen der H&ouml;chststufe auf der jeweiligen Risikoleiter, also bei 90 oder 100 Sonderspielen, wird eine  Lichtanimation gestartet und der Radetzky-Marsch gespielt.<p>";
 
 c_think = "Eine Auszahlung ist nicht vorgesehen, oder um es mal mit U2 zu sagen:<p>U2 - Every Breaking Wave<p>Every breaking wave on the shore<br>Tells the next one there will be one more<br><b>And every gambler knows that to lose<br>Is what you are really there for.</b><p>Denk mal dr&uuml;ber nach!  Vielleicht, wenn du mal wieder in die Spielo gehst: Du bist da um zu verlieren.  An der Stelle wirst du jetzt widersprechen, nat&uuml;rlich willst du gewinnen. Du holst das raus was die Anderen reingeworfen haben, richtig? Du magst ein echter Gl&uuml;ckspilz sein, aber auf lange Sicht kannst du nur verlieren, den die Mathematik ist  gegen dich.<p>Schmeisst du da einen Euo rein und bekommst rein rechnerisch 60% wieder raus, hast du nur 40 Cent verloren. Schmeist du da im Laufe der Zeit eine Million rein, sind schon 400000 Euro weg.<p>In der Spielo sind sie nicht nett und geben sie dir keinen Kaffee aus, weil sie dich m&ouml;gen, sondern weil es Peanuts sind, im Verh&auml;ltnis zu dem Batzen Geld, den der durchschnittliche Gast da l&auml;st. Wenn du einsam bist geh in Vereine, oder such die ein nettes Hobby. Spiel Billard, Schach oder Tischtennis, da gibts Menschen die echt nett sind, nicht nur weil es ihr Job ist nett zu sein.";
 
@@ -155,12 +155,12 @@ btnText = [
 
 playfield = [
 "Daddelkiste",
-"Disco Points",
+"Disco fun",
 "ARGENT",
 "POINTS",
 "GAGNER",
 "PARI",
-"JEUX SPECIAUX",
+"JEUX",
 "MULTI JEUX",
 "PLAYOUT"
 ]
@@ -230,12 +230,12 @@ btnText = [
 
 playfield = [
 "Daddelkiste",
-"Disco Points",
+"Disco fun",
 "MONEY",
 "PUNTI",
 "WIN",
 "USO",
-"GIOCHI SPECIALI",
+"GIOCHI",
 "Multi-Games",
 "PLAYOUT"
 ]; 
@@ -306,12 +306,12 @@ btnText = [
 ]; 
 playfield = [
 "Daddelkiste",
-"Disco Points",
+"Disco fun",
 "Geld",
 "Points",
 "Winst",
 "Inzet",
-"Speciale Spellen",
+"Spellen",
 "Multi Spellen",
 "Playout" 
 ]; 
@@ -325,7 +325,7 @@ settingsText = [
 " Seconden",
 "Instructies:",
 " ",
-"Opmerkingen over het spel:"
+"Over het spel:"
 ]; 
 
 c_anl = "Deze simulatie van een gaming machine werkt precies zoals in de arcade. Bij geactiveerde automatische start de spins automatich. Startup lanceert de eerste schijf weer als het geen zon is. Het risico Automatic risico's waarmee de winst tot de ingestelde niveau van het risico. dit is wanneer actief is, door te klikken op de doos op de linker- of rechterkant risicomanager moet aan de automatisch riskeerde het ingestelde niveau is te zien op het kleine heldere groene balk in het betreffende gebied van de risico's in te stellen.";
@@ -383,12 +383,12 @@ btnText = [
 
 playfield = [ 
 "Daddelkiste",
-"Disco Points",
+"Disco fun",
 "MONEDAS",
 "PUNTOS",
 "GANAR",
 "APUESTA",
-"JUEGOS ESPECIALES",
+"JUEGOS",
 "JUEGOS MULTIPLES",
 "PLAYOUT"
 ]; 
@@ -460,12 +460,12 @@ btnText = [
 
 playfield = [
 "Daddelkiste",
-"Disco Points",
+"Disco fun",
 "DINHEIRO",
 "PONTOS",
 "WIN",
 "USO",
-"Jogos Especiais",
+"Jogos",
 "Multi Jogos",
 "Playout"
 ];
@@ -537,12 +537,12 @@ btnText = [
 
 playfield = [ 
 "Daddelkiste",
-"Disco Points",
+"Disco fun",
 "MYNT",
 "POANG",
 "VINNA",
 "SLA VAD",
-"SPECIAL SPEL",
+"SPEL",
 "MULTI SPEL",
 "SPELA UT"
 ]; 
@@ -584,8 +584,8 @@ infoText = [
 "Autostart ON",
 "Risk-automatic OFF",
 "Risk-automatic ON",
-"Risk step right site set",
-"Risk step left site set",
+"Risk step on the right site set",
+"Risk step on the left site set",
 "Win: ",
 "Partial win: ", 
 " POINTS - accepted",
@@ -614,12 +614,12 @@ btnText = [
 
 playfield = [
 "Daddelkiste",
-"Disco Points",
+"Disco fun",
 "COINS",
 "POINTS",
 "WIN",
 "BET",
-"SPECIAL GAMES",
+"GAMES",
 "MULTI GAMES",
 "PLAYOUT"
 ];
