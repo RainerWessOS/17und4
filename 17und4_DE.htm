@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+   <meta charset="utf-8" />
+   <title>17 + 4 : Das Spiel</title>
+   <meta name="author" content="Rainer Wess" />
+   <meta name="description" content="17 + 4 Spiel realisiert mit JavaScript, HTML5 und CSS" />
+   <meta name="keywords" content="Spiel,Kartenspiel,17+4,siebzehn und vier,Touch,Handy App,open source,GPL, freeware,HTML,CSS,JavaScript" />
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=yes, minimal-ui" />
+  
+<style>
+
+/* 
+   I have reduced the margin-height     
+   of some elements to look nicer on    
+   the Sololearn mobile App. To play 
+   it standlone you may stretch it a 
+   little bit in Y-direction.
+   
+   New:
+   Optimised the layout with flexbox.
+*/
+
+
+  body {
+    width: 360px;
+    margin: auto;
+    color: white;
+    font-family: Arial;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: darkgreen;
+
+    /* disabling content selection */
+    -webkit-user-select:none;
+
+    -khtml-user-select:none;
+
+    -moz-user-select:none;
+
+    -ms-user-select:none;
+
+    user-select:none;
+
+  }
+
+  hr {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  a {
+    color: Gold;
+  }
+  
+  .game_page {
+    position: absolute;
+    overflow: hidden;
+    top: 0px;
+    left: 0px;
+    width: 320px;
+    margin: 20px;
+    color: white;
+    background-color: darkgreen;
+  }
+
+  .overlay_page {
+    z-index: 5;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 320px;
+    margin: 20px;
+    color: white;
+    background-color: darkgreen;
+  }
+  
+ .hidden_page {
+    z-index: 5;
+    display: none;
+  }
+
+  .game_title {
+    font: 32px Arial;
+    font-weight: bold;
+    color: red;
+    text-align: left;
+    text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
+  }
+
+  .MenuBtn {
+    font: 22px Arial;
+    font-weight: bold;
+    color: DeepSkyBlue;
+    font-weight: bold;
+    float: right;
+    width: 35px;
+    height: 35px;
+    border: 1px solid;
+    border-color: white;
+    border-radius: 5px;
+    background-color: darkgreen;
+  }
+  
+  .players {
+   font: 20px Arial;
+   font-weight: bold;
+   color: white;
+   margin-top: 35px;
+}
+
+#info, #busted {
+  text-align: left;
+  margin-left: 40px;
+}
+
+#points_cpu, #points_usr {
+   float: right;
+   text-align: right;
+}
+
+.tables {
+   display: flex;
+   flex-direction: row;
+   justify-content: space-between;
+   margin-top: 20px;
+   margin-bottom: 40px;
+}
+
+.places {
+   height: 81px;
+   width: 56px;
+}
+
+#controls {
+   display: flex;
+   flex-direction: row;
+   justify-content: space-between;
+   margin-top: 50px;
+   margin-bottom: 3px;
+   margin-right: 3px;
+}
+
+.btn {
+   font-size: 16px;
+   color: white;
+   font-weight: bold;
+   border-color: white;
+   border: 1px solid;
+   border-radius: 5px;
+   -webkit-box-shadow: 3px 3px #303030;
+   -moz-box-shadow: 3px 3px #303030;
+   box-shadow: 3px 3px #303030;
+   height: 35px;
+}
+
+#takeBtn {
+    background-color: green;
+}
+
+#standBtn {
+    background-color: red;
+}
+
+#newBtn {
+     background-color: black;
+}
+
+#menu {
+    overflow: hidden;
+    height: 100%;
+ }
+  
+ #mBtn {
+     visibility:visible;
+ }
+
+ .redBtn {
+    background-color: red;
+ }
+
+ .menu_info {
+    margin-top: 15px;
+    width: 100%;
+ }
+
+ h3 {
+    font: 20px Arial;
+    font-weight: bold;
+ }
+
+ .content {
+    font: 16px Arial;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    height: 100%; 
+ }
+
+</style>
+
+<script>
+
+   /*
+     Black Jack - (17+4) 
+     Copyright Rainer Wess 2018
+     Made in Germany 🇩🇪
+     
+     Open Source / Freeware
+     Released under GNU GPL 3.0
+     You can download it from
+     github, search RainerWessOS
+   */
+
+   globals: {
+
+      var points_usr;
+      var points_cpu;
+      var sum_usr;
+      var sum_cpu;
+      var place_usr;
+      var place_cpu;
+      var running;
+      var i;
+      var ani;
+      var intA;
+      var intTC = [];
+      var deck = [];
+      var card = [];
+      var card_value = [];
+      var revcard;
+      var nocard;
+   }
+
+for (i = 0; i <= 51; i++) {
+   card[i] = new Image();
+   card[i].src = "cards/card" + i + ".png";
+}
+
+revcard = new Image();
+revcard.src = "cards/reverse.png";
+
+nocard = new Image();
+nocard.src = "cards/nocard.png";
+
+card_value = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10];
+
+function id(id) {
+   return document.getElementById(id);
+}
+
+function setImg(pn, num) {
+
+   id("place" + pn).src = card[num].src;
+   id("place" + pn).style.boxShadow = "1px 1px 1px #303030";
+}
+
+function setText(sid, txt) {
+   id(sid).innerHTML = txt;
+}
+
+function setColor(sid, color) {
+   id(sid).style.color = color;
+}
+
+function aniWin() {
+
+   ani = (ani) ? false : true;
+   if (ani) setColor("info", "darkgreen");
+   else setColor("info","gold");
+}
+ 
+   
+  function showMenu() {
+ id("menu").className="overlay_page";
+ id("guide").className="hidden_page";
+ id("about").className="hidden_page";
+  }
+
+  function showGuide() { 
+id("guide").className="overlay_page";
+id("menu").className="hidden_page";
+  }
+
+  function showAbout() {
+id("about").className="overlay_page";
+id("menu").className="hidden_page";
+  }
+
+ function showGame() {
+  id("game").className="game_page";
+  id("menu").className="hidden_page";
+  
+ }
+
+function enableButtons() {
+
+   id("takeBtn").disabled = false;
+   id("standBtn").disabled = false;
+}
+
+function disableButtons() {
+
+   id("takeBtn").disabled = true;
+   id("standBtn").disabled = true;
+   id("newBtn").disabled = true;
+}
+
+function init() {
+
+   points_usr = 0;
+   setText("points_usr", points_usr);
+   points_cpu = 0;
+   setText("points_cpu", points_cpu);
+   newGame();
+}
+
+function createDeck() {
+
+      var arr = [];
+      for (var i = 0; i < 52; i++) {
+         arr[i] = i;
+      }
+      
+      return arr;
+}
+
+
+function shuffle(arr) {
+
+   var i, j, tmp; 
+
+   // Fisher-Yates Shuffling Algorithm
+
+   for(i=arr.length-1; i>0; i--) {
+    
+      j = Math.floor(Math.random() * (i + 1));
+      tmp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = tmp;
+      
+   }
+   
+   return arr;
+ }
+ 
+ 
+ function takeCard() {
+ 
+     var tc;
+     
+     if(deck.length == 0) {
+       deck = createDeck();
+       deck = shuffle(deck);     
+     }
+     
+     tc = deck.pop();        
+     
+     
+     return tc;
+     
+ }
+    
+
+function newGame() {
+
+   sum_usr = 0;
+   sum_cpu = 0;
+   place_usr = 0;
+   place_cpu = 5;
+   ani = false;
+   running = true;
+
+   id("newBtn").blur();
+   disableButtons();
+
+   if (intA) clearInterval(intA);
+
+   setText("busted", " ");
+   setText("info", " ");
+   setText("cpu", "0");
+   setText("you", "0");
+   setColor("info", "white");
+
+   for (i = 0; i <= 9; i++) {
+      id("place" + i).src = nocard.src;
+      id("place" + i).style.boxShadow = "none";
+   }
+
+   setTimeout(showReversedCard, 500);
+   setTimeout(cpuTakeCard, 1000);
+   setTimeout(usrTakeCard, 1500);
+   setTimeout(enableButtons, 1600);
+}
+
+function showReversedCard() {
+
+   id("place6").src = revcard.src;
+   id("place6").style.boxShadow = "1px 1px 1px #303030";
+}
+
+function usrTakeCard() {
+
+   var cNum;
+
+   id("takeBtn").blur();
+
+   if (running) {
+   
+      if (sum_usr <= 21) {
+         setText("info", " ");
+         cNum = takeCard();
+         setImg(place_usr, cNum);
+         place_usr++;
+         sum_usr += card_value[cNum % 13];
+         setText("you", sum_usr);
+      }
+      
+      if (sum_usr > 20) {
+         disableButtons();
+         whoWins();
+      }
+      // in rare cases five cards are not enough 
+      // ToDo: shift the drawn cards in the places, if more cards needed then places available, but for now we reuse the last place
+      if (place_usr > 4) place_usr--;
+   }
+}
+
+function cpuTakeCard() {
+
+   var cNum;
+
+   if (running) {
+   
+      if ((sum_cpu < 19 && sum_cpu < sum_usr) || (sum_cpu < 16 && sum_cpu == sum_usr)) {
+
+         cNum = takeCard();
+         setImg(place_cpu, cNum);
+         place_cpu++;
+         sum_cpu += card_value[cNum % 13];
+         setText("cpu", sum_cpu);
+         
+         if (place_cpu > 9) {
+
+            // in rare cases five cards are not enough then the last place is reused
+            place_cpu--;
+            intTC[0] = setTimeout(cpuTakeCard, 1000);
+         }
+      }
+      else whoWins();
+   }
+}
+
+function stand() {
+
+   // computers turn      
+   var wait = 0;
+
+   id("standBtn").blur();
+
+   if (sum_usr > 9) {
+
+      disableButtons();
+      
+      if (sum_cpu > sum_usr) whoWins();
+
+      for (i = 0; i < 4; i++) {
+      
+         if (sum_usr > sum_cpu && sum_cpu < 19 || sum_usr == sum_cpu && sum_cpu < 16) {
+            intTC[i] = setTimeout(cpuTakeCard, wait);
+            wait += 1000;
+         }
+      }
+   }      // Little Britain joke
+     else setText("info", "💻 sagt NEIN!");
+}
+
+function youWin() {
+
+   setColor("info", "gold");
+   setText("info", "Du hast gewonnen!");
+   intA = setInterval(aniWin, 700);
+}
+
+function youLose() {
+
+   setText("info", "Du hast verloren.");
+}
+
+function whoWins() {
+
+   if (running) {
+   
+      if (sum_usr > 21 || (sum_cpu <= 21 && sum_cpu > sum_usr && sum_usr > 0)) {
+      
+         running = false;
+         
+         if (sum_usr > 21) {
+            setText("info", "zuviel");
+            setTimeout(youLose, 800);
+         }
+         
+         else youLose();
+         points_cpu += 1;
+         setText("points_cpu", points_cpu);
+      }
+      
+      else if (sum_cpu > 21 || sum_usr == 21 || (sum_usr <= 21 && sum_usr > sum_cpu)) {
+      
+         running = false;
+         
+         if (sum_cpu > 21) {
+            setText("busted", "* zuviel *");
+            setTimeout(youWin, 500);
+         }
+         else if (sum_usr == 21) {
+            setTimeout(youWin, 500);
+         }
+         else youWin();
+         points_usr += 1;
+         setText("points_usr", points_usr);
+      }
+      else if (sum_cpu > 0 && sum_usr == sum_cpu) {
+      
+         running = false;
+         
+         setColor("info", "white")
+         setText("info", "Unentschieden!");
+      }
+
+      if (!running) {
+
+         id("newBtn").disabled = false;
+
+         for (i = 0; i < intTC.length; i++) {
+            if (intTC[i]) clearTimeout(intTC[i]);
+         }
+      }
+   }
+}
+
+// END
+
+</script>
+
+</head>
+
+
+<body onload="init()">
+
+  <div id="menu" class="hidden_page">
+     
+    <div class="header"><span class="game_title">17 + 4 : Das Spiel</span><button id="mBtn" class="MenuBtn" onclick="showGame()">&#10005;</button></div>
+    
+    <hr>
+    <div>
+      <button class="btn redBtn" onclick="showGuide()">Spielanleitung</button>
+    </div>
+    <div class="menu_info">
+      Die Regeln des Kartenspiels 17 und 4.
+      <p>
+    </div>
+    <hr>
+    <div>
+      <button class="btn redBtn" onclick="showAbout()">&Uuml;ber das Spiel</button>
+    </div>
+    <div class="menu_info">
+      Information &uuml;ber Urheber, Copyright und Lizenz f&uuml;r dieses Spiel.
+    </div>
+     <hr>
+    <div>
+      <button class="btn redBtn" onclick="showGame()">Zur&uuml;ck zum Spiel</button>
+    </div>
+    <div class="menu_info">
+      Der Menu-Knopf oben rechts in der Ecke bringt dich auch zur&uuml;ck zum Spiel.
+    </div>
+  </div>
+
+  <div id="guide" class="hidden_page">
+    <div class="header"><span class="game_title">17 + 4 : Das Spiel</span><button class="MenuBtn" onclick="showMenu()">&#9776;</button></div>
+    
+    <div class="content">
+    <h3> Spielanleitung</h3>Sinn des Spiels ist zu gewinnen. 😀<br>Du spielst hier gegen einen echten Profi, die Gina.<p>Ziel des Spiels ist es, mit zwei oder mehr Karten n&auml;her an 21 Punkte heranzukommen als deine Mitspielerin, idealerweise genau 21 Punkte zu bekommen. Aber &uuml;bertreibe es nicht, denn wenn ein Spieler 21 Punkte &uuml;berschreitet sind es zuviel und  er hat verloren. <p>Weil die Gina so verdammt gut spielt muss sie eine Karte von sich umdrehen, so das du sie sehen und einsch&auml;tzen kannst, ob du schon genug Punkte hast, oder es riskieren solltest noch eine Karte zu nehmen.<p>
+Wenn du genau 21 Punkte bekommst gewinnst du sofort, das ist nat&uuml;rlich das Beste, denn dann kommt die Gina gar nicht zum Zug.<p>
+Viel Spaß beim Spielen!<p>
+    </div>
+  </div>
+
+  <div id="about" class="hidden_page">
+    <div class="header"><span class="game_title">17 + 4 : Das Spiel</span><button class="MenuBtn" onclick="showMenu()">&#9776;</button>
+    </div>
+
+    <div class="content">
+      <h3>&Uuml;ber das Spiel</h3>
+      Spielentwicklung/Programmierung<br> 2018 ©️ Rainer Wess, Osnabr&uuml;ck
+      <p>
+      Made in Germany 🇩🇪
+          <p>
+            Dieses Spiel ist Open Source / Freeware.
+            <p>
+              Dieses Programm ist freie Software: Du kannst sie  nutzen, weiterverbreiten oder modifizieren nach den Bedingungen der GNU General Public  License, wie sie von der Free Software Foundation ver&ouml;ffentlicht wurde, entweder Version 3 der Lizenz, oder (nach deinem Ermessen) jeder sp&auml;teren Version.
+              <p>
+Dieses Programm wird in der Hoffnung verbreitet, dass es n&uuml;tzlich sein wird, aber OHNE JEGLICHE GARANTIE; ohne auch nur die stillschweigende Gew&auml;hrleistung der MARKTG&Auml;NGIGKEIT oder EIGNUNG F&Uuml;R EINEN BESTIMMTEN ZWECK. Weitere Informationen findest du in der GNU General Public License.
+                <p>
+                  Du solltest eine Kopie der GNU General Public License zusammen mit diesem Programm erhalten haben.
+                  <p>
+                    Falls nicht, schau hier: <br><a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>
+         <p>
+            Die aktuellste Version des Spiels kannst du von github.com herunterladen:<br>
+<a href="https://github.com/RainerWessOS/" target="_new">https://github.com/RainerWessOS/</a>
+            <p>
+    </div>
+  </div>
+
+  <div id="game" class="game_page">
+    <div class="header"><span class="game_title">17 + 4 : Das Spiel</span><button class="MenuBtn" onclick="showMenu()">&#9776;</button>
+    </div>
+
+      <div class="players">GINA : <span id="cpu">0</span> <span id="busted"> </span><span id="points_cpu">0</span>
+      </div>
+
+      <div class="tables">
+         <div class="places"><img id="place6" src="cards/nocard.png" alt=""></div>
+         <div class="places"><img id="place5" src="cards/nocard.png" alt=""></div>
+         <div class="places"><img id="place7" src="cards/nocard.png" alt=""></div>
+         <div class="places"><img id="place8" src="cards/nocard.png" alt=""></div>
+         <div class="places"><img id="place9" src="cards/nocard.png" alt=""></div>
+      </div>
+
+      <div class="players">DU : <span id="you">0</span> <span id="info"> </span><span id="points_usr">0</span></div>
+
+      <div class="tables">
+         <div class="places"><img id="place0" src="cards/nocard.png" alt=""></div>
+         <div class="places"><img id="place1" src="cards/nocard.png" alt=""></div>
+         <div class="places"><img id="place2" src="cards/nocard.png" alt=""></div>
+         <div class="places"><img id="place3" src="cards/nocard.png" alt=""></div>
+         <div class="places"><img id="place4" src="cards/nocard.png" alt=""></div>
+      </div>
+
+      <div id="controls">
+         <div>
+            <button id="takeBtn" class="btn" onclick="usrTakeCard()">Karte nehmen</button>
+         </div>
+         <div>
+            <button id="standBtn" class="btn" onclick="stand()">Genug</button>
+         </div>
+         <div>
+            <button id="newBtn" class="btn" onclick="newGame()">Neues Spiel</button>
+         </div>
+      </div>
+      
+  </div>
+
+  </body>
+
+</html>
