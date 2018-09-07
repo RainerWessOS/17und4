@@ -35,13 +35,9 @@
 
     /* disabling content selection */
     -webkit-user-select:none;
-
     -khtml-user-select:none;
-
     -moz-user-select:none;
-
     -ms-user-select:none;
-
     user-select:none;
 
   }
@@ -86,6 +82,7 @@
     font: 32px Arial;
     font-weight: bold;
     color: red;
+    line-height: 1.2;
     text-align: left;
     text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
   }
@@ -130,8 +127,8 @@
 }
 
 .places {
-   height: 81px;
-   width: 56px;
+   height: 82px;
+   width: 58px;
 }
 
 #controls {
@@ -204,7 +201,7 @@
 <script>
 
    /*
-     Black Jack - (17+4) 
+     Black Jack - (17+4) - V1.0
      Copyright Rainer Wess 2018
      Made in Germany 🇩🇪
      
@@ -212,6 +209,10 @@
      Released under GNU GPL 3.0
      You can download it from
      github, search RainerWessOS
+     
+     New in version 1.0:
+     Nice deck of cards created by 
+     nicubunu from openclipart.org
    */
 
    globals: {
@@ -252,9 +253,7 @@ function id(id) {
 }
 
 function setImg(pn, num) {
-
    id("place" + pn).src = card[num].src;
-   id("place" + pn).style.boxShadow = "1px 1px 1px #303030";
 }
 
 function setText(sid, txt) {
@@ -386,7 +385,6 @@ function newGame() {
 
    for (i = 0; i <= 9; i++) {
       id("place" + i).src = nocard.src;
-      id("place" + i).style.boxShadow = "none";
    }
 
    setTimeout(showReversedCard, 500);
@@ -396,9 +394,7 @@ function newGame() {
 }
 
 function showReversedCard() {
-
    id("place6").src = revcard.src;
-   id("place6").style.boxShadow = "1px 1px 1px #303030";
 }
 
 function usrTakeCard() {
@@ -609,7 +605,9 @@ Dieses Programm wird in der Hoffnung verbreitet, dass es nützlich sein wird, ab
                     Falls nicht, schau hier: <br><a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>
          <p>
             Die aktuellste Version des Spiels kannst du von github.com herunterladen:<br>
-<a href="https://github.com/RainerWessOS/Black-Jack" target="_new">https://github.com/RainerWessOS/Black-Jack</a>
+<a href="https://github.com/RainerWessOS/Black-Jack">https://github.com/RainerWessOS/Black-Jack</a>
+            <p>
+            Die sch&ouml;nen Grafiken des Kartendecks wurden von nicubunu erstellt und unter Creative Commons Zero 1.0 Public Domain License ver&ouml;ffentlicht. Ich habe sie von openclipart.org
             <p>
     </div>
   </div>
